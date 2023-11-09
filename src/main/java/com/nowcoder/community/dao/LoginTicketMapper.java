@@ -29,4 +29,7 @@ public interface LoginTicketMapper {
     })
     int updateStatus(String ticket, int status);
 
+
+    // todo 这一方式与使用 MyBaties 有何异同
+    // 肉眼可见更加麻烦
 }
