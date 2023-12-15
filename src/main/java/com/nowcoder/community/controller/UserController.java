@@ -26,10 +26,10 @@ import java.io.OutputStream;
 @Controller
 @RequestMapping("/user")
 public class UserController {
-
+    // Logger 实例，用于记录日志
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Value("${community.path.upload}")
+    @Value( "${community.path.upload}")
     private String uploadPath;
 
     @Value("${community.path.domain}")
@@ -44,20 +44,23 @@ public class UserController {
     @Autowired
     private HostHolder hostHolder;
 
-    @LoginRequired
+    @LoginRequired  // 自定义注解，确保用户在访问该方法之前已登录
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
+        // 返回设置页面的路径
         return "/site/setting";
     }
 
-    @LoginRequired
+    // 处理上传头像的请求
+    @LoginRequired  // 确保用户登录后才能上传头像
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
+        // 检查是否有文件上传
         if (headerImage == null) {
             model.addAttribute("error", "您还没有选择图片!");
             return "/site/setting";
         }
-
+        // 获取文件名并检查文件格式
         String fileName = headerImage.getOriginalFilename();
         String suffix = fileName.substring(fileName.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
@@ -86,17 +89,18 @@ public class UserController {
         return "redirect:/index";
     }
 
+    // 获取用户头像
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
-        // 服务器存放路径
+        // 完整的服务器存储路径
         fileName = uploadPath + "/" + fileName;
-        // 文件后缀
+        // 提取文件后缀
         String suffix = fileName.substring(fileName.lastIndexOf("."));
-        // 响应图片
+        // 设置响应的内容类型为图片
         response.setContentType("image/" + suffix);
         try (
-                FileInputStream fis = new FileInputStream(fileName);
-                OutputStream os = response.getOutputStream();
+                FileInputStream fis = new FileInputStream(fileName);    // 读取文件
+                OutputStream os = response.getOutputStream();    // 写入响应
         ) {
             byte[] buffer = new byte[1024];
             int b = 0;
@@ -107,5 +111,4 @@ public class UserController {
             logger.error("读取头像失败: " + e.getMessage());
         }
     }
-
 }
