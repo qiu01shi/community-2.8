@@ -51,7 +51,7 @@ public class MessageController {
                 map.put("letterCount", messageService.findLetterCount(message.getConversationId()));
                 //未读消息数量
                 map.put("unreadCount", messageService.findLetterUnreadCount(user.getId(), message.getConversationId()));
-                //
+                // 当前用户对话的目标
                 int targetId = user.getId() == message.getFromId() ? message.getToId() : message.getFromId();
                 map.put("target", userService.findUserById(targetId));
 

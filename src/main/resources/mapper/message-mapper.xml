@@ -65,11 +65,18 @@
         </if>
     </select>
 
+<!--  keyProperty="id"
+执行插入操作：当执行插入操作时，如果数据库表的ID字段是自动增长的（比如使用了AUTO_INCREMENT），
+           数据库会为新插入的行生成一个新的ID值。
+回填ID值：使用keyProperty，MyBatis知道应该取这个新生成的ID值，并将其设置到你的Message对象的id属性中。
+Java对象更新：这意味着在插入操作完成后，你的Message对象将会有一个更新过的id属性，反映了在数据库中新创建的记录的ID。
+-->
     <insert id="insertMessage" parameterType="Message" keyProperty="id">
         insert into message(<include refid="insertFields"></include>)
         values(#{fromId},#{toId},#{conversationId},#{content},#{status},#{createTime})
     </insert>
 
+<!--    返回类型默认是 int-->
     <update id="updateStatus">
         update message set status = #{status}
         where id in
