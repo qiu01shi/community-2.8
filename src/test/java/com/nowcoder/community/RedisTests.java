@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.core.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -197,5 +198,44 @@ public class RedisTests {
         System.out.println(obj);
     }
 
+    // 统计 3 组数据的布尔值，并对这 3 组 数据做 OR 运算
+    @Test
+    public void testBitmapOperation(){
+
+        String redisKey2 = "test:bm:02";
+        redisTemplate.opsForValue().setBit(redisKey2, 0, true);
+        redisTemplate.opsForValue().setBit(redisKey2, 1, true);
+        redisTemplate.opsForValue().setBit(redisKey2, 2, true);
+
+        String redisKey3 = "test:bm:03";
+        redisTemplate.opsForValue().setBit(redisKey3, 2, true);
+        redisTemplate.opsForValue().setBit(redisKey3, 3, true);
+        redisTemplate.opsForValue().setBit(redisKey3, 4, true);
+
+        String redisKey4 = "test:bm:04";
+        redisTemplate.opsForValue().setBit(redisKey4, 4, true);
+        redisTemplate.opsForValue().setBit(redisKey4, 5, true);
+        redisTemplate.opsForValue().setBit(redisKey4, 6, true);
+
+        String redisKey = "test:bm:or";
+        Object obj = redisTemplate.execute(new RedisCallback() {
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.bitOp(RedisStringCommands.BitOperation.OR,
+                        redisKey.getBytes(),
+                        redisKey2.getBytes(), redisKey3.getBytes(), redisKey4.getBytes());
+
+                return connection.bitCount(redisKey.getBytes());
+            }
+        });
+        System.out.println(obj);
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 0));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 1));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 2));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 3));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 4));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 5));
+        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 6));
+    }
 
 }
